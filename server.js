@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { createReadStream, existsSync, statSync } from 'fs';
+import { createReadStream, existsSync, statSync, writeFileSync } from 'fs';
 import { join, extname, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -12,6 +12,36 @@ const CLIENT_DIST = join(__dirname, 'client', 'dist');
 
 app.use(cors());
 app.use(express.json());
+
+const EDIT_PASSWORD = process.env.EDIT_PASSWORD;
+const sessions = new Map();
+
+// Expose whether edit mode is configured
+app.get('/api/edit-status', (req, res) => {
+  if (EDIT_PASSWORD) res.json({ enabled: true });
+  else res.status(404).json({ enabled: false });
+});
+
+// Authenticate for edit mode
+app.post('/api/auth', (req, res) => {
+  if (!EDIT_PASSWORD) return res.status(403).json({ error: 'Edit mode not configured — set EDIT_PASSWORD env var' });
+  const { password } = req.body ?? {};
+  if (password !== EDIT_PASSWORD) return res.status(401).json({ error: 'Wrong password' });
+  const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  sessions.set(token, Date.now() + 8 * 60 * 60 * 1000); // 8h
+  res.json({ token });
+});
+
+// Save edited tracklist
+app.put('/api/tracklist', (req, res) => {
+  const token = req.headers['x-edit-token'];
+  const expiry = sessions.get(token);
+  if (!token || !expiry || expiry < Date.now()) return res.status(401).json({ error: 'Unauthorized' });
+  const { tracks } = req.body ?? {};
+  if (!Array.isArray(tracks)) return res.status(400).json({ error: 'Invalid payload' });
+  writeFileSync(join(__dirname, 'client', 'src', 'data', 'tracklist.json'), JSON.stringify(tracks, null, 2));
+  res.json({ ok: true });
+});
 
 // HLS stream with proper content types and range support
 app.use('/stream', (req, res) => {
