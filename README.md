@@ -1,6 +1,6 @@
 # USB002
 
-A personal streaming webapp — homage to the Fred again.. × Thomas Bangalter back-to-back at Alexandra Palace, London, 27 February 2026.
+A streaming webapp — homage to the Fred again.. × Thomas Bangalter back-to-back at Alexandra Palace, London, 27 February 2026.
 
 Dark, monospace, minimal. A track queue you can jump around with one click.
 
