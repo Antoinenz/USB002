@@ -7,3 +7,4 @@ media/hls/
 *.mkv
 .env
 *.log
+.claude/

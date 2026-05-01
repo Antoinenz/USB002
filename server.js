@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3011;
 const HLS_DIR = join(__dirname, 'media', 'hls');
 const CLIENT_DIST = join(__dirname, 'client', 'dist');
 

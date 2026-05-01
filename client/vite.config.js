@@ -6,8 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/stream': 'http://localhost:3001',
-      '/api': 'http://localhost:3001',
+      '/stream': 'http://localhost:3011',
+      '/api': 'http://localhost:3011',
     },
   },
 });
