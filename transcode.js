@@ -84,15 +84,15 @@ const filterParts = [
   ),
 ];
 
-// Build FFmpeg arguments — decode once, split, encode all renditions in one pass
+// Build FFmpeg arguments — decode once, split, encode all renditions in one pass.
+// HLS muxer options (-hls_time, -hls_playlist_type, -hls_flags) are per-output in
+// FFmpeg's CLI — they must appear immediately before each output file, not once
+// globally, or they only apply to the first output.
 const args = [
   ...decodeArgs,
   '-i', INPUT,
   '-y',
   '-filter_complex', filterParts.join(';'),
-  '-hls_time', '6',
-  '-hls_playlist_type', 'vod',
-  '-hls_flags', 'independent_segments',
 ];
 
 RENDITIONS.forEach((r, i) => {
@@ -104,6 +104,9 @@ RENDITIONS.forEach((r, i) => {
     '-b:a', r.ab,
     '-ac', '2',
     '-ar', '44100',
+    '-hls_time', '6',
+    '-hls_playlist_type', 'vod',
+    '-hls_flags', 'independent_segments',
     '-hls_segment_filename', join(OUT, r.name, 'seg%04d.ts'),
     join(OUT, r.name, 'playlist.m3u8'),
   );
@@ -117,6 +120,9 @@ args.push(
   '-b:a', '192k',
   '-ac', '2',
   '-ar', '44100',
+  '-hls_time', '6',
+  '-hls_playlist_type', 'vod',
+  '-hls_flags', 'independent_segments',
   '-hls_segment_filename', join(OUT, 'audio', 'seg%04d.ts'),
   join(OUT, 'audio', 'playlist.m3u8'),
 );
